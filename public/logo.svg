@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">TodoBar pinwheel logo</title>
+  <desc id="desc">Four rounded diamond petals in teal, amber, coral, and blue with a white checkmark.</desc>
+  <rect width="512" height="512" rx="112" fill="#FFFDF7"/>
+  <g filter="url(#shadow)">
+    <rect x="86" y="86" width="176" height="176" rx="44" fill="#16A799" transform="rotate(45 174 174)"/>
+    <rect x="250" y="86" width="176" height="176" rx="44" fill="#F7B312" transform="rotate(45 338 174)"/>
+    <rect x="86" y="250" width="176" height="176" rx="44" fill="#F4503C" transform="rotate(45 174 338)"/>
+    <rect x="250" y="250" width="176" height="176" rx="44" fill="#2E7FE5" transform="rotate(45 338 338)"/>
+  </g>
+  <path d="M303 164l39 39 70-75" stroke="#fff" stroke-width="38" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <defs>
+    <filter id="shadow" x="34" y="36" width="444" height="444" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="16" stdDeviation="18" flood-color="#1C1B18" flood-opacity=".16"/>
+    </filter>
+  </defs>
+</svg>

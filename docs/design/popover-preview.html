@@ -1,0 +1,1032 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TodoBar — Popover Design Preview</title>
+    <style>
+      :root {
+        --teal: #16a799;
+        --amber: #f7b312;
+        --coral: #f4503c;
+        --blue: #2e7fe5;
+        --ink: #1d1d1f;
+        --ink-2: rgba(60, 60, 67, 0.6);
+        --ink-3: rgba(60, 60, 67, 0.3);
+        --pop-bg: rgba(246, 246, 248, 0.82);
+        --row-hover: rgba(0, 0, 0, 0.045);
+        --field-bg: rgba(255, 255, 255, 0.75);
+        --field-border: rgba(0, 0, 0, 0.08);
+        --hairline: rgba(0, 0, 0, 0.08);
+        --menubar-bg: rgba(250, 250, 252, 0.72);
+      }
+      .dark {
+        --ink: #f5f5f7;
+        --ink-2: rgba(235, 235, 245, 0.6);
+        --ink-3: rgba(235, 235, 245, 0.3);
+        --pop-bg: rgba(40, 40, 44, 0.78);
+        --row-hover: rgba(255, 255, 255, 0.06);
+        --field-bg: rgba(255, 255, 255, 0.08);
+        --field-border: rgba(255, 255, 255, 0.12);
+        --hairline: rgba(255, 255, 255, 0.1);
+        --menubar-bg: rgba(30, 30, 34, 0.72);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue',
+          sans-serif;
+        -webkit-font-smoothing: antialiased;
+        overflow: hidden;
+        background: linear-gradient(
+          160deg,
+          #5b8fc7 0%,
+          #7aa6cf 28%,
+          #c4a3b8 62%,
+          #e0b18f 100%
+        );
+        transition: background 0.5s ease;
+      }
+      body.dark {
+        background: linear-gradient(
+          160deg,
+          #1a2440 0%,
+          #243355 30%,
+          #4a3559 65%,
+          #6b4341 100%
+        );
+      }
+
+      /* ── mock macOS menu bar ───────────────────────────── */
+      .menubar {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 4px;
+        padding: 0 14px;
+        background: var(--menubar-bg);
+        backdrop-filter: blur(30px);
+        font-size: 13px;
+        color: var(--ink);
+        user-select: none;
+      }
+      .menubar .spacer {
+        flex: 1;
+      }
+      .menubar .apple {
+        font-size: 15px;
+      }
+      .menubar .item {
+        padding: 3px 8px;
+        border-radius: 5px;
+      }
+      .menubar .item.app-item {
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+      }
+      .menubar .item.app-item.active {
+        background: var(--row-hover);
+      }
+      .menubar .item.app-item svg {
+        display: block;
+      }
+
+      /* ── popover ───────────────────────────────────────── */
+      .popover-wrap {
+        position: absolute;
+        top: 34px;
+        right: 132px;
+        filter: drop-shadow(0 18px 40px rgba(0, 0, 0, 0.3));
+        transition:
+          opacity 0.18s ease,
+          transform 0.18s ease;
+        transform-origin: top right;
+      }
+      .popover-wrap.hidden {
+        opacity: 0;
+        transform: scale(0.96) translateY(-6px);
+        pointer-events: none;
+      }
+      .popover-arrow {
+        width: 22px;
+        height: 11px;
+        margin: 0 24px -1px auto;
+        background: var(--pop-bg);
+        backdrop-filter: blur(40px) saturate(180%);
+        clip-path: polygon(50% 0, 100% 100%, 0 100%);
+      }
+      .popover {
+        width: 360px;
+        height: 480px;
+        background: var(--pop-bg);
+        backdrop-filter: blur(40px) saturate(180%);
+        border-radius: 14px;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        color: var(--ink);
+        position: relative;
+      }
+
+      /* ── header ────────────────────────────────────────── */
+      .pop-header {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        padding: 14px 16px 10px;
+      }
+      .pop-header .wordmark {
+        font-size: 15px;
+        font-weight: 600;
+        letter-spacing: -0.2px;
+      }
+      .sync-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--teal);
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--teal) 18%, transparent);
+        cursor: default;
+      }
+      .pop-header .grow {
+        flex: 1;
+      }
+      .avatar {
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--teal), var(--blue));
+        color: #fff;
+        font-size: 11px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        border: none;
+        font-family: inherit;
+        transition: box-shadow 0.15s;
+      }
+      .avatar:hover {
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--teal) 25%, transparent);
+      }
+
+      /* avatar menu — single profile + settings menu */
+      .avatar-menu {
+        position: absolute;
+        top: 44px;
+        right: 12px;
+        min-width: 210px;
+        background: var(--pop-bg);
+        backdrop-filter: blur(40px) saturate(180%);
+        border-radius: 10px;
+        box-shadow:
+          0 8px 30px rgba(0, 0, 0, 0.25),
+          0 0 0 0.5px var(--hairline);
+        padding: 5px;
+        display: none;
+        z-index: 10;
+      }
+      .avatar-menu.open {
+        display: block;
+      }
+      .avatar-menu .profile {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        padding: 7px 9px 9px;
+      }
+      .avatar-menu .profile .avatar {
+        cursor: default;
+      }
+      .avatar-menu .profile .avatar:hover {
+        box-shadow: none;
+      }
+      .avatar-menu .profile .name {
+        font-size: 13px;
+        font-weight: 600;
+      }
+      .avatar-menu .profile .email {
+        font-size: 11px;
+        color: var(--ink-2);
+      }
+      .avatar-menu hr {
+        border: none;
+        border-top: 1px solid var(--hairline);
+        margin: 4px 8px;
+      }
+      .avatar-menu .mi {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
+        font: inherit;
+        font-size: 13px;
+        color: var(--ink);
+        border: none;
+        background: none;
+        cursor: pointer;
+        padding: 5px 9px;
+        border-radius: 6px;
+        text-align: left;
+      }
+      .avatar-menu .mi:hover {
+        background: var(--teal);
+        color: #fff;
+      }
+      .avatar-menu .mi:hover .hint {
+        color: rgba(255, 255, 255, 0.7);
+      }
+      .avatar-menu .mi .grow {
+        flex: 1;
+      }
+      .avatar-menu .mi .hint {
+        font-size: 11px;
+        color: var(--ink-3);
+        font-family: ui-monospace, monospace;
+      }
+      .avatar-menu .mi .check {
+        width: 14px;
+        text-align: center;
+        font-size: 11px;
+      }
+
+      /* ── input ─────────────────────────────────────────── */
+      .input-wrap {
+        padding: 2px 14px 10px;
+      }
+      .input-field {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--field-bg);
+        border: 1px solid var(--field-border);
+        border-radius: 10px;
+        padding: 7px 10px;
+        transition:
+          border-color 0.15s,
+          box-shadow 0.15s;
+      }
+      .input-field:focus-within {
+        border-color: color-mix(in srgb, var(--teal) 60%, transparent);
+        box-shadow: 0 0 0 2px color-mix(in srgb, var(--teal) 12%, transparent);
+      }
+      .input-field .plus {
+        color: var(--ink-3);
+        font-size: 15px;
+        font-weight: 500;
+        line-height: 1;
+      }
+      .input-field input {
+        flex: 1;
+        border: none;
+        outline: none;
+        background: none;
+        font: inherit;
+        font-size: 13.5px;
+        color: var(--ink);
+      }
+      .input-field input::placeholder {
+        color: var(--ink-3);
+      }
+      .input-field .key-hint {
+        font-size: 10px;
+        color: var(--ink-3);
+        border: 1px solid var(--hairline);
+        border-radius: 4px;
+        padding: 1px 5px;
+        opacity: 0;
+        transition: opacity 0.15s;
+      }
+      .input-field:focus-within .key-hint {
+        opacity: 1;
+      }
+
+      /* ── task list ─────────────────────────────────────── */
+      .task-list {
+        flex: 1;
+        overflow-y: auto;
+        padding: 0 8px 8px;
+      }
+      .task-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 8px 8px;
+        border-radius: 9px;
+        cursor: default;
+        animation: row-in 0.22s ease both;
+      }
+      @keyframes row-in {
+        from {
+          opacity: 0;
+          transform: translateY(-4px);
+        }
+      }
+      .task-row:hover {
+        background: var(--row-hover);
+      }
+      .task-row .texts {
+        flex: 1;
+        min-width: 0;
+        padding-top: 1px;
+      }
+      .task-row .title {
+        font-size: 13.5px;
+        line-height: 1.35;
+        transition: color 0.2s;
+      }
+      .task-row .meta {
+        display: flex;
+        gap: 6px;
+        margin-top: 3px;
+      }
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        font-size: 10.5px;
+        font-weight: 500;
+        padding: 1.5px 7px;
+        border-radius: 20px;
+      }
+      .chip.due {
+        color: var(--amber);
+        background: color-mix(in srgb, var(--amber) 14%, transparent);
+      }
+      .chip.bell {
+        color: var(--blue);
+        background: color-mix(in srgb, var(--blue) 12%, transparent);
+      }
+
+      .row-actions {
+        opacity: 0;
+        transition: opacity 0.12s;
+        display: flex;
+        gap: 2px;
+        padding-top: 2px;
+      }
+      .task-row:hover .row-actions {
+        opacity: 1;
+      }
+      .row-actions button {
+        border: none;
+        background: none;
+        cursor: pointer;
+        color: var(--ink-3);
+        font-size: 11.5px;
+        width: 22px;
+        height: 22px;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .row-actions button:hover {
+        background: var(--row-hover);
+        color: var(--ink-2);
+      }
+      .row-actions button.del:hover {
+        color: var(--coral);
+        background: color-mix(in srgb, var(--coral) 10%, transparent);
+      }
+
+      /* ── inline editor ─────────────────────────────────── */
+      .edit-card {
+        flex: 1;
+        min-width: 0;
+        background: var(--field-bg);
+        border: 1px solid color-mix(in srgb, var(--teal) 45%, transparent);
+        border-radius: 10px;
+        padding: 9px 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .edit-card input[type='text'] {
+        border: none;
+        outline: none;
+        background: none;
+        font: inherit;
+        font-size: 13.5px;
+        color: var(--ink);
+        width: 100%;
+      }
+      .edit-card .opts {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+      .edit-card .opt {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 11px;
+        color: var(--ink-2);
+        background: var(--row-hover);
+        border-radius: 6px;
+        padding: 3px 7px;
+      }
+      .edit-card .opt input {
+        border: none;
+        outline: none;
+        background: none;
+        font: inherit;
+        font-size: 11px;
+        color: var(--ink);
+        width: 52px;
+      }
+      .edit-card .opt input::placeholder {
+        color: var(--ink-3);
+      }
+      .edit-card .acts {
+        display: flex;
+        justify-content: flex-end;
+        gap: 6px;
+      }
+      .edit-card .acts button {
+        border: none;
+        cursor: pointer;
+        font: inherit;
+        font-size: 11.5px;
+        font-weight: 500;
+        padding: 4px 11px;
+        border-radius: 7px;
+      }
+      .edit-card .cancel {
+        background: none;
+        color: var(--ink-2);
+      }
+      .edit-card .cancel:hover {
+        background: var(--row-hover);
+      }
+      .edit-card .save {
+        background: var(--teal);
+        color: #fff;
+      }
+      .edit-card .save:hover {
+        filter: brightness(1.08);
+      }
+
+      /* ── petal checkbox ────────────────────────────────── */
+      .petal-check {
+        width: 26px;
+        height: 26px;
+        flex: none;
+        border: none;
+        background: none;
+        cursor: pointer;
+        position: relative;
+        padding: 0;
+      }
+      .petal-check .shape {
+        position: absolute;
+        inset: 4px;
+        border-radius: 5.5px;
+        transform: rotate(45deg);
+        border: 1.5px solid var(--petal, var(--teal));
+        background: transparent;
+        transition:
+          background 0.18s cubic-bezier(0.3, 1.4, 0.5, 1),
+          transform 0.18s cubic-bezier(0.3, 1.4, 0.5, 1);
+      }
+      .petal-check:hover .shape {
+        background: color-mix(
+          in srgb,
+          var(--petal, var(--teal)) 15%,
+          transparent
+        );
+      }
+      .petal-check svg {
+        position: absolute;
+        inset: 0;
+        margin: auto;
+        width: 12px;
+        height: 12px;
+        stroke: #fff;
+        stroke-width: 2.4;
+        fill: none;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-dasharray: 16;
+        stroke-dashoffset: 16;
+        transition: stroke-dashoffset 0.22s ease 0.06s;
+      }
+      .task-row.done .petal-check .shape {
+        background: var(--petal, var(--teal));
+        transform: rotate(45deg) scale(1.04);
+      }
+      .task-row.done .petal-check svg {
+        stroke-dashoffset: 0;
+      }
+      .task-row.done .title {
+        color: var(--ink-3);
+        text-decoration: line-through;
+        text-decoration-color: var(--ink-3);
+      }
+      .task-row.done {
+        opacity: 0.7;
+      }
+
+      /* ── empty state ───────────────────────────────────── */
+      .empty {
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        padding: 48px 0 36px;
+        color: var(--ink-3);
+      }
+      .empty.show {
+        display: flex;
+      }
+      .empty .mark {
+        opacity: 0.5;
+      }
+      .empty .line1 {
+        font-size: 13.5px;
+        font-weight: 600;
+        color: var(--ink-2);
+      }
+      .empty .line2 {
+        font-size: 12px;
+      }
+
+      /* ── footer ────────────────────────────────────────── */
+      .pop-footer {
+        display: flex;
+        align-items: center;
+        padding: 8px 14px;
+        border-top: 1px solid var(--hairline);
+      }
+      .completed-toggle {
+        display: none;
+        align-items: center;
+        gap: 5px;
+        border: none;
+        background: none;
+        cursor: pointer;
+        font: inherit;
+        font-size: 11.5px;
+        font-weight: 500;
+        color: var(--ink-2);
+        padding: 4px 8px;
+        margin-left: -8px;
+        border-radius: 6px;
+      }
+      .completed-toggle.visible {
+        display: flex;
+      }
+      .completed-toggle:hover {
+        background: var(--row-hover);
+      }
+      .completed-toggle .dot {
+        width: 13px;
+        height: 13px;
+        border-radius: 4px;
+        transform: rotate(45deg) scale(0.78);
+        background: var(--ink-3);
+        transition: background 0.15s;
+      }
+      .completed-toggle.on .dot {
+        background: var(--teal);
+      }
+      .completed-toggle.on {
+        color: var(--teal);
+      }
+      .pop-footer .grow {
+        flex: 1;
+      }
+      .remaining {
+        font-size: 11.5px;
+        color: var(--ink-2);
+      }
+
+      /* ── preview chrome (not part of design) ───────────── */
+      .preview-controls {
+        position: absolute;
+        bottom: 22px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 8px;
+        background: rgba(0, 0, 0, 0.45);
+        backdrop-filter: blur(20px);
+        padding: 8px 10px;
+        border-radius: 12px;
+      }
+      .preview-controls button {
+        border: none;
+        cursor: pointer;
+        background: rgba(255, 255, 255, 0.14);
+        color: #fff;
+        font: inherit;
+        font-size: 12px;
+        font-weight: 500;
+        padding: 6px 12px;
+        border-radius: 8px;
+      }
+      .preview-controls button:hover {
+        background: rgba(255, 255, 255, 0.25);
+      }
+      .preview-label {
+        position: absolute;
+        bottom: 64px;
+        left: 50%;
+        transform: translateX(-50%);
+        color: rgba(255, 255, 255, 0.85);
+        font-size: 11px;
+        letter-spacing: 0.3px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- mock menu bar -->
+    <div class="menubar">
+      <span class="item apple"></span>
+      <span class="item" style="font-weight: 600">Finder</span>
+      <span class="item">File</span>
+      <span class="item">Edit</span>
+      <span class="item">View</span>
+      <span class="spacer"></span>
+      <span
+        class="item app-item active"
+        id="menubarIcon"
+        title="TodoBar"
+      ></span>
+      <span class="item">🔋</span>
+      <span class="item">📶</span>
+      <span class="item" id="clock">Thu Jun 12&nbsp;&nbsp;9:41 AM</span>
+    </div>
+
+    <!-- popover -->
+    <div class="popover-wrap" id="popoverWrap">
+      <div class="popover-arrow"></div>
+      <div class="popover">
+        <div class="pop-header">
+          <span id="headerMark"></span>
+          <span class="wordmark">TodoBar</span>
+          <span class="sync-dot" id="syncDot" title="Synced with Convex"></span>
+          <span class="grow"></span>
+          <button class="avatar" id="avatarBtn" title="Account &amp; settings">
+            4D
+          </button>
+        </div>
+
+        <!-- single profile + settings menu -->
+        <div class="avatar-menu" id="avatarMenu">
+          <div class="profile">
+            <span class="avatar">4D</span>
+            <div>
+              <div class="name">4D Energy</div>
+              <div class="email">4denergy.no@gmail.com</div>
+            </div>
+          </div>
+          <hr />
+          <button class="mi">
+            <span class="check">✓</span><span class="grow">Open at Login</span>
+          </button>
+          <button class="mi">
+            <span class="check"></span><span class="grow">Show TodoBar</span
+            ><span class="hint">⌃⌥T</span>
+          </button>
+          <hr />
+          <button class="mi">
+            <span class="check"></span><span class="grow">Sign Out</span>
+          </button>
+          <button class="mi">
+            <span class="check"></span><span class="grow">Quit TodoBar</span
+            ><span class="hint">⌘Q</span>
+          </button>
+        </div>
+
+        <div class="input-wrap">
+          <div class="input-field">
+            <span class="plus">＋</span>
+            <input
+              id="taskInput"
+              type="text"
+              placeholder="Add a task…"
+              autocomplete="off"
+              autofocus
+            />
+            <span class="key-hint">⏎</span>
+          </div>
+        </div>
+
+        <div class="task-list" id="taskList">
+          <div id="rows"></div>
+          <div class="empty" id="emptyState">
+            <span class="mark" id="emptyMark"></span>
+            <span class="line1">All clear</span>
+            <span class="line2">Enjoy the quiet, or add what's next.</span>
+          </div>
+        </div>
+
+        <div class="pop-footer">
+          <button
+            class="completed-toggle"
+            id="completedToggle"
+            title="Show completed tasks"
+          >
+            <span class="dot"></span>
+            <span id="completedLabel">Completed</span>
+          </button>
+          <span class="grow"></span>
+          <span class="remaining" id="remaining"></span>
+        </div>
+      </div>
+    </div>
+
+    <span class="preview-label"
+      >TodoBar · popover design preview — fully interactive</span
+    >
+    <div class="preview-controls">
+      <button id="themeToggle">◐ Dark mode</button>
+      <button id="popToggle">Toggle popover</button>
+      <button id="emptyDemo">Empty state</button>
+      <button id="resetDemo">Reset demo</button>
+    </div>
+
+    <script>
+      const PETALS = ['#16A799', '#F7B312', '#F4503C', '#2E7FE5']
+
+      // pinwheel mark: four rounded squares rotated 45°, checkmark notch on amber
+      function pinwheelSVG(size) {
+        const s = size,
+          u = s / 24
+        function petal(cx, cy, color) {
+          return `<rect x="${cx - 5.2 * u}" y="${cy - 5.2 * u}" width="${10.4 * u}" height="${10.4 * u}" rx="${2.6 * u}" fill="${color}" transform="rotate(45 ${cx} ${cy})"/>`
+        }
+        return `<svg class="mark" width="${s}" height="${s}" viewBox="0 0 ${s} ${s}">
+      ${petal(7.4 * u, 7.4 * u, PETALS[0])}
+      ${petal(16.6 * u, 7.4 * u, PETALS[1])}
+      ${petal(7.4 * u, 16.6 * u, PETALS[2])}
+      ${petal(16.6 * u, 16.6 * u, PETALS[3])}
+      <path d="M ${14.2 * u} ${7.6 * u} l ${1.8 * u} ${1.8 * u} l ${3.2 * u} -${3.4 * u}" stroke="#fff" stroke-width="${1.9 * u}" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>`
+      }
+      function pinwheelMono(size, color) {
+        return pinwheelSVG(size).replaceAll(
+          /#16A799|#F7B312|#F4503C|#2E7FE5/g,
+          color,
+        )
+      }
+
+      document.getElementById('headerMark').innerHTML = pinwheelSVG(22)
+      document.getElementById('emptyMark').innerHTML = pinwheelSVG(44)
+
+      // ── demo data ──────────────────────────────────────
+      const seed = () => [
+        { title: 'Ship the menubar build', due: null, bell: null, done: false },
+        {
+          title: 'Email Clerk support about OAuth redirect',
+          due: 'Fri',
+          bell: null,
+          done: false,
+        },
+        {
+          title: 'Review onboarding flow',
+          due: null,
+          bell: '3:00 PM',
+          done: false,
+        },
+        {
+          title: 'Update App Store screenshots',
+          due: 'Jun 20',
+          bell: null,
+          done: false,
+        },
+        { title: 'Buy coffee filters', due: null, bell: null, done: true },
+        {
+          title: 'Renew Apple Developer membership',
+          due: null,
+          bell: null,
+          done: true,
+        },
+      ]
+      let tasks = seed()
+      let showCompleted = false
+      let editingIndex = location.search.includes('edit=')
+        ? +location.search.split('edit=')[1]
+        : null
+
+      const rowsEl = document.getElementById('rows')
+      const completedToggle = document.getElementById('completedToggle')
+      const completedLabel = document.getElementById('completedLabel')
+      const emptyState = document.getElementById('emptyState')
+      const remaining = document.getElementById('remaining')
+      const input = document.getElementById('taskInput')
+
+      function rowHTML(t, i) {
+        const petal = PETALS[i % 4]
+        if (editingIndex === i) {
+          return `<div class="task-row" data-i="${i}">
+        <button class="petal-check" style="--petal:${petal}" disabled>
+          <span class="shape"></span>
+          <svg viewBox="0 0 14 14"><path d="M2.5 7.5 L5.5 10.5 L11.5 3.5"/></svg>
+        </button>
+        <div class="edit-card">
+          <input type="text" class="ed-title" value="${t.title.replace(/"/g, '&quot;')}" autofocus>
+          <div class="opts">
+            <span class="opt">⚑ <input class="ed-due" placeholder="Due" value="${t.due || ''}"></span>
+            <span class="opt">🔔 <input class="ed-bell" placeholder="Remind" value="${t.bell || ''}"></span>
+          </div>
+          <div class="acts">
+            <button class="cancel">Cancel</button>
+            <button class="save">Save</button>
+          </div>
+        </div>
+      </div>`
+        }
+        const chips = [
+          t.due ? `<span class="chip due">⚑ ${t.due}</span>` : '',
+          t.bell ? `<span class="chip bell">🔔 ${t.bell}</span>` : '',
+        ].join('')
+        return `<div class="task-row ${t.done ? 'done' : ''}" data-i="${i}">
+      <button class="petal-check" style="--petal:${petal}" title="${t.done ? 'Mark active' : 'Complete'}">
+        <span class="shape"></span>
+        <svg viewBox="0 0 14 14"><path d="M2.5 7.5 L5.5 10.5 L11.5 3.5"/></svg>
+      </button>
+      <div class="texts">
+        <div class="title">${t.title}</div>
+        ${chips ? `<div class="meta">${chips}</div>` : ''}
+      </div>
+      <div class="row-actions">
+        <button class="edit" title="Edit">✎</button>
+        <button class="del" title="Delete">✕</button>
+      </div>
+    </div>`
+      }
+
+      function render() {
+        const indexed = tasks.map((t, i) => ({ t, i }))
+        const active = indexed.filter((x) => !x.t.done)
+        const done = indexed.filter((x) => x.t.done)
+
+        // active first, completed appended inline (faded) when shown
+        rowsEl.innerHTML =
+          active.map((x) => rowHTML(x.t, x.i)).join('') +
+          (showCompleted ? done.map((x) => rowHTML(x.t, x.i)).join('') : '')
+
+        completedToggle.classList.toggle('visible', done.length > 0)
+        completedToggle.classList.toggle('on', showCompleted)
+        completedLabel.textContent = `Completed · ${done.length}`
+        completedToggle.title = showCompleted
+          ? 'Hide completed tasks'
+          : 'Show completed tasks'
+
+        emptyState.classList.toggle(
+          'show',
+          active.length === 0 && !(showCompleted && done.length),
+        )
+        remaining.textContent =
+          active.length === 0
+            ? 'All done'
+            : `${active.length} task${active.length === 1 ? '' : 's'} left`
+      }
+
+      document.getElementById('taskList').addEventListener('click', (e) => {
+        const row = e.target.closest('.task-row')
+        if (!row) return
+        const i = +row.dataset.i
+        if (editingIndex === i) {
+          if (e.target.closest('.save')) saveEdit(row, i)
+          else if (e.target.closest('.cancel')) {
+            editingIndex = null
+            render()
+          }
+          return
+        }
+        if (e.target.closest('.petal-check')) {
+          if (!tasks[i].done) {
+            row.classList.add('done') // play animation in place
+            setTimeout(() => {
+              tasks[i].done = true
+              render()
+            }, 420)
+          } else {
+            tasks[i].done = false
+            render()
+          }
+        } else if (e.target.closest('.edit')) {
+          editingIndex = i
+          render()
+          const f = rowsEl.querySelector('.ed-title')
+          if (f) {
+            f.focus()
+            f.select()
+          }
+        } else if (e.target.closest('.del')) {
+          tasks.splice(i, 1)
+          render()
+        }
+      })
+
+      function saveEdit(row, i) {
+        tasks[i].title =
+          row.querySelector('.ed-title').value.trim() || tasks[i].title
+        tasks[i].due = row.querySelector('.ed-due').value.trim() || null
+        tasks[i].bell = row.querySelector('.ed-bell').value.trim() || null
+        editingIndex = null
+        render()
+      }
+
+      document.getElementById('taskList').addEventListener('keydown', (e) => {
+        const row = e.target.closest('.task-row')
+        if (!row || editingIndex !== +row.dataset.i) return
+        if (e.key === 'Enter') saveEdit(row, +row.dataset.i)
+        if (e.key === 'Escape') {
+          editingIndex = null
+          render()
+        }
+      })
+
+      completedToggle.addEventListener('click', () => {
+        showCompleted = !showCompleted
+        render()
+      })
+
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && input.value.trim()) {
+          tasks.unshift({
+            title: input.value.trim(),
+            due: null,
+            bell: null,
+            done: false,
+          })
+          input.value = ''
+          render()
+          input.focus() // keep focus after adding
+        }
+      })
+
+      // avatar menu — single profile + settings menu
+      const avatarBtn = document.getElementById('avatarBtn')
+      const avatarMenu = document.getElementById('avatarMenu')
+      avatarBtn.addEventListener('click', (e) => {
+        e.stopPropagation()
+        avatarMenu.classList.toggle('open')
+      })
+      document.addEventListener('click', () =>
+        avatarMenu.classList.remove('open'),
+      )
+
+      // preview chrome
+      const themeToggle = document.getElementById('themeToggle')
+      function setMenubarIcon() {
+        document.getElementById('menubarIcon').innerHTML = pinwheelMono(
+          17,
+          document.body.classList.contains('dark') ? '#fff' : '#1d1d1f',
+        )
+      }
+      themeToggle.addEventListener('click', () => {
+        const dark = document.body.classList.toggle('dark')
+        themeToggle.textContent = dark ? '◑ Light mode' : '◐ Dark mode'
+        setMenubarIcon()
+      })
+      setMenubarIcon()
+
+      const popWrap = document.getElementById('popoverWrap')
+      function togglePopover() {
+        const hidden = popWrap.classList.toggle('hidden')
+        if (!hidden) input.focus() // auto-focus on every open
+      }
+      document
+        .getElementById('popToggle')
+        .addEventListener('click', togglePopover)
+      document
+        .getElementById('menubarIcon')
+        .addEventListener('click', togglePopover)
+      document.getElementById('emptyDemo').addEventListener('click', () => {
+        tasks = tasks.map((t) => ({ ...t, done: true }))
+        render()
+      })
+      document.getElementById('resetDemo').addEventListener('click', () => {
+        tasks = seed()
+        showCompleted = false
+        render()
+        input.focus()
+      })
+
+      render()
+      input.focus()
+    </script>
+  </body>
+</html>

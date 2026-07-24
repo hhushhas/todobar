@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://todobar.q9labs.ai/sitemap.xml

@@ -1,0 +1,8 @@
+.build
+.convex
+.tanstack
+dist
+node_modules
+releases/staging
+convex/_generated
+site/src/routeTree.gen.ts

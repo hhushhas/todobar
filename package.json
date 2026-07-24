@@ -1,0 +1,51 @@
+{
+  "name": "todobar",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.15.1",
+  "scripts": {
+    "dev": "vite dev --port 3000",
+    "generate-routes": "tsr generate",
+    "build": "vite build && pnpm run stage:releases",
+    "stage:releases": "mkdir -p dist/client/releases && cp releases/TodoBar-0.1.0.dmg releases/TodoBar-0.1.0.zip dist/client/releases/",
+    "deploy:worker": "pnpm run build && wrangler deploy",
+    "preview": "vite preview",
+    "test:web": "vitest run --config vitest.config.ts",
+    "lint": "eslint .",
+    "format": "prettier --write . && eslint --fix .",
+    "check": "prettier --check . && eslint . && tsc --noEmit",
+    "convex:dev": "convex dev",
+    "convex:codegen": "convex codegen",
+    "convex:deploy": "convex deploy",
+    "convex:check": "CLERK_FRONTEND_API_URL=${CLERK_FRONTEND_API_URL:-https://example.clerk.accounts.dev} convex dev --once --typecheck=enable",
+    "build:mac": "swift build",
+    "install:mac": "INSTALL_TO_APPLICATIONS=1 LAUNCH=1 ./scripts/build-app.sh",
+    "test": "swift test && pnpm run convex:check && pnpm run test:web"
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "4.3.0",
+    "@tanstack/react-router": "1.170.15",
+    "@tanstack/react-start": "1.168.25",
+    "@tanstack/router-plugin": "1.168.18",
+    "react": "19.2.7",
+    "react-dom": "19.2.7",
+    "tailwindcss": "4.3.0"
+  },
+  "devDependencies": {
+    "@tanstack/eslint-config": "0.4.0",
+    "@tanstack/router-cli": "1.167.17",
+    "@testing-library/dom": "10.4.1",
+    "@testing-library/react": "16.3.2",
+    "@types/node": "24.13.1",
+    "@types/react": "19.2.17",
+    "@types/react-dom": "19.2.3",
+    "@vitejs/plugin-react": "6.0.2",
+    "convex": "1.40.0",
+    "eslint": "10.4.1",
+    "jsdom": "28.1.0",
+    "prettier": "3.8.3",
+    "typescript": "5.9.3",
+    "vite": "8.0.16",
+    "vitest": "4.1.8"
+  }
+}

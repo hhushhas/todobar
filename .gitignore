@@ -1,0 +1,14 @@
+.build/
+node_modules/
+.DS_Store
+.env.local
+.notary/
+.convex/
+.tanstack/
+.wrangler/
+convex/_generated/
+dist/
+releases/
+scratchpad/
+AGENTS.md
+*.xcuserdata/

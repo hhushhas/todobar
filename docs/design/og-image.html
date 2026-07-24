@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>TodoBar OG card — render at exactly 1200×630</title>
+    <style>
+      :root {
+        --teal: #16a799;
+        --amber: #f7b312;
+        --coral: #f4503c;
+        --blue: #2e7fe5;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        width: 1200px;
+        height: 630px;
+        overflow: hidden;
+        font-family:
+          -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue',
+          sans-serif;
+        -webkit-font-smoothing: antialiased;
+        background: #fffdf7;
+        color: #1c1b18;
+        position: relative;
+      }
+      .petal {
+        position: absolute;
+        border-radius: 22%;
+        transform: rotate(45deg);
+      }
+
+      .content {
+        position: absolute;
+        left: 84px;
+        top: 0;
+        bottom: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        width: 560px;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 44px;
+      }
+      .brand .name {
+        font-size: 38px;
+        font-weight: 800;
+        letter-spacing: -1.2px;
+      }
+      h1 {
+        font-size: 76px;
+        font-weight: 800;
+        letter-spacing: -0.045em;
+        line-height: 1;
+      }
+      h1 .strike {
+        position: relative;
+        white-space: nowrap;
+      }
+      h1 .strike::after {
+        content: '';
+        position: absolute;
+        left: -2%;
+        right: -2%;
+        top: 54%;
+        height: 0.09em;
+        background: var(--coral);
+        border-radius: 6px;
+        transform: rotate(-2deg);
+      }
+      h1 .teal {
+        color: var(--teal);
+      }
+      .tag {
+        margin-top: 36px;
+        font-size: 25px;
+        font-weight: 600;
+        color: rgba(28, 27, 24, 0.55);
+        line-height: 1.4;
+      }
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 34px;
+        align-self: flex-start;
+        background: #1c1b18;
+        color: #fffdf7;
+        font-size: 20px;
+        font-weight: 700;
+        padding: 13px 26px;
+        border-radius: 14px;
+        box-shadow: 5px 5px 0 var(--amber);
+      }
+
+      .mock {
+        position: absolute;
+        right: 86px;
+        top: 50%;
+        transform: translateY(-50%) rotate(2deg);
+        width: 380px;
+        background: #fff;
+        border: 3px solid #1c1b18;
+        border-radius: 22px;
+        box-shadow: 14px 14px 0 rgba(28, 27, 24, 0.9);
+        font-size: 16px;
+      }
+      .mock .head {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 18px 20px 12px;
+      }
+      .mock .head .nm {
+        font-size: 18px;
+        font-weight: 700;
+        letter-spacing: -0.3px;
+      }
+      .mock .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--teal);
+        box-shadow: 0 0 0 4px rgba(22, 167, 153, 0.18);
+      }
+      .mock .grow {
+        flex: 1;
+      }
+      .mock .ava {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--teal), var(--blue));
+        color: #fff;
+        font-size: 12px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .mock .inp {
+        margin: 0 16px 12px;
+        padding: 11px 14px;
+        background: #f6f2e8;
+        border: 2px solid rgba(28, 27, 24, 0.14);
+        border-radius: 11px;
+        color: rgba(28, 27, 24, 0.4);
+        font-size: 15px;
+      }
+      .mock .rows {
+        padding: 0 10px 14px;
+      }
+      .row {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+        padding: 10px 10px;
+      }
+      .chk {
+        width: 28px;
+        height: 28px;
+        position: relative;
+        flex: none;
+      }
+      .chk .sh {
+        position: absolute;
+        inset: 4px;
+        border-radius: 6px;
+        transform: rotate(45deg);
+        border: 2px solid var(--pc);
+      }
+      .row.done .chk .sh {
+        background: var(--pc);
+        border-color: var(--pc);
+      }
+      .chk svg {
+        position: absolute;
+        inset: 0;
+        margin: auto;
+        width: 13px;
+        height: 13px;
+        stroke: #fff;
+        stroke-width: 2.6;
+        fill: none;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      .row .t {
+        flex: 1;
+        font-weight: 600;
+      }
+      .row.done .t {
+        text-decoration: line-through;
+        opacity: 0.4;
+      }
+      .chip {
+        font-size: 12px;
+        font-weight: 700;
+        padding: 3px 10px;
+        border-radius: 20px;
+        color: var(--amber);
+        background: rgba(247, 179, 18, 0.16);
+      }
+      .mock .foot {
+        display: flex;
+        justify-content: space-between;
+        padding: 12px 18px 16px;
+        border-top: 2px solid rgba(28, 27, 24, 0.1);
+        font-size: 13px;
+        font-weight: 700;
+        color: rgba(28, 27, 24, 0.55);
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      class="petal"
+      style="
+        width: 120px;
+        height: 120px;
+        background: var(--teal);
+        left: -34px;
+        top: -34px;
+        opacity: 0.95;
+      "
+    ></div>
+    <div
+      class="petal"
+      style="
+        width: 64px;
+        height: 64px;
+        background: var(--amber);
+        left: 600px;
+        top: 64px;
+      "
+    ></div>
+    <div
+      class="petal"
+      style="
+        width: 150px;
+        height: 150px;
+        background: var(--coral);
+        right: -44px;
+        bottom: -44px;
+        opacity: 0.95;
+      "
+    ></div>
+    <div
+      class="petal"
+      style="
+        width: 56px;
+        height: 56px;
+        background: var(--blue);
+        left: 560px;
+        bottom: 74px;
+      "
+    ></div>
+
+    <div class="content">
+      <div class="brand">
+        <span id="mark"></span>
+        <span class="name">TodoBar</span>
+      </div>
+      <h1>
+        Add it.<br /><span class="strike">Forget it.</span><br /><span
+          class="teal"
+          >Check it off.</span
+        >
+      </h1>
+      <div class="tag">
+        The cheerful little todo list that lives in your Mac's menu bar.
+      </div>
+      <div class="pill">Free for macOS · ⌃⌥T</div>
+    </div>
+
+    <div class="mock">
+      <div class="head">
+        <span id="mark2"></span>
+        <span class="nm">TodoBar</span><span class="dot"></span>
+        <span class="grow"></span><span class="ava">4D</span>
+      </div>
+      <div class="inp">＋&nbsp; Add a task…</div>
+      <div class="rows">
+        <div class="row" style="--pc: #16a799">
+          <span class="chk"><span class="sh"></span></span
+          ><span class="t">Ship the menubar build</span>
+        </div>
+        <div class="row" style="--pc: #f7b312">
+          <span class="chk"><span class="sh"></span></span
+          ><span class="t">Email Amy back</span><span class="chip">⚑ Fri</span>
+        </div>
+        <div class="row done" style="--pc: #f4503c">
+          <span class="chk"
+            ><span class="sh"></span
+            ><svg viewBox="0 0 14 14">
+              <path d="M2.5 7.5 L5.5 10.5 L11.5 3.5" /></svg
+          ></span>
+          <span class="t">Buy coffee filters</span>
+        </div>
+        <div class="row done" style="--pc: #2e7fe5">
+          <span class="chk"
+            ><span class="sh"></span
+            ><svg viewBox="0 0 14 14">
+              <path d="M2.5 7.5 L5.5 10.5 L11.5 3.5" /></svg
+          ></span>
+          <span class="t">Book dentist</span>
+        </div>
+      </div>
+      <div class="foot">
+        <span>◇ Completed · 2</span><span>2 tasks left</span>
+      </div>
+    </div>
+
+    <script>
+      const PETALS = ['#16A799', '#F7B312', '#F4503C', '#2E7FE5']
+      function pinwheelSVG(size) {
+        const u = size / 24
+        const petal = (cx, cy, c) =>
+          `<rect x="${cx - 5.2 * u}" y="${cy - 5.2 * u}" width="${10.4 * u}" height="${10.4 * u}" rx="${2.6 * u}" fill="${c}" transform="rotate(45 ${cx} ${cy})"/>`
+        return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" style="display:block">
+      ${petal(7.4 * u, 7.4 * u, PETALS[0])}${petal(16.6 * u, 7.4 * u, PETALS[1])}
+      ${petal(7.4 * u, 16.6 * u, PETALS[2])}${petal(16.6 * u, 16.6 * u, PETALS[3])}
+      <path d="M ${14.2 * u} ${7.6 * u} l ${1.8 * u} ${1.8 * u} l ${3.2 * u} -${3.4 * u}" stroke="#fff" stroke-width="${1.9 * u}" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>`
+      }
+      document.getElementById('mark').innerHTML = pinwheelSVG(52)
+      document.getElementById('mark2').innerHTML = pinwheelSVG(24)
+    </script>
+  </body>
+</html>

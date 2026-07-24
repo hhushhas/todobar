@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#FFFDF7"/>
+  <rect x="84" y="86" width="86" height="86" rx="22" fill="#16A799" transform="rotate(45 127 129)"/>
+  <rect x="1014" y="102" width="72" height="72" rx="18" fill="#F4503C" transform="rotate(45 1050 138)"/>
+  <rect x="920" y="466" width="58" height="58" rx="15" fill="#2E7FE5" transform="rotate(45 949 495)"/>
+  <rect x="196" y="454" width="64" height="64" rx="16" fill="#F7B312" transform="rotate(45 228 486)"/>
+  <g transform="translate(484 70) scale(.45)">
+    <rect width="512" height="512" rx="112" fill="#FFFDF7"/>
+    <rect x="86" y="86" width="176" height="176" rx="44" fill="#16A799" transform="rotate(45 174 174)"/>
+    <rect x="250" y="86" width="176" height="176" rx="44" fill="#F7B312" transform="rotate(45 338 174)"/>
+    <rect x="86" y="250" width="176" height="176" rx="44" fill="#F4503C" transform="rotate(45 174 338)"/>
+    <rect x="250" y="250" width="176" height="176" rx="44" fill="#2E7FE5" transform="rotate(45 338 338)"/>
+    <path d="M303 164l39 39 70-75" stroke="#fff" stroke-width="38" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <text x="600" y="384" text-anchor="middle" font-family="Helvetica" font-size="86" font-weight="850" fill="#1C1B18">Add it. Forget it.</text>
+  <text x="600" y="470" text-anchor="middle" font-family="Helvetica" font-size="86" font-weight="850" fill="#16A799">Check it off.</text>
+  <text x="600" y="545" text-anchor="middle" font-family="Helvetica" font-size="31" font-weight="650" fill="#6C6960">TodoBar for macOS</text>
+</svg>
