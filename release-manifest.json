@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "app": "TodoBar",
+  "platform": "macOS",
+  "bundleIdentifier": "com.hasanshoaib.todobar",
+  "versionName": "0.1.0",
+  "buildNumber": 1,
+  "releaseTrack": "Developer ID local/CI build",
+  "gitRemote": "https://github.com/hhushhas/todobar.git",
+  "signing": {
+    "identity": "Developer ID Application: CollabEZ FZE LLC (5K9635LZ6F)",
+    "certificateSha1": "0E:B8:09:CB:62:F3:06:F5:A2:81:52:85:D9:AA:65:62:57:7D:54:53",
+    "certificateSha256": "BE:82:2D:3C:3C:AF:CF:77:8A:72:87:0D:53:5D:DB:AB:13:0F:A6:79:31:C3:2D:60:3C:39:B4:15:6C:0A:E3:73",
+    "p12DocumentItem": "Q9 Labs Developer ID Application Signing 2026-08-29 (macOS compatible)",
+    "p12PasswordItem": "Q9 Labs Developer ID p12 Password 2026-08-29",
+    "p12Sha256": "e604c21dd164b285692e4e395179c23c12c009b20ad781e24ebb1aa8d37cef64",
+    "teamId": "5K9635LZ6F"
+  },
+  "notarization": {
+    "apiKeyDocumentItem": "TodoBar Notarization API Key 9DC4Q2PRT6 2026-08-29",
+    "apiKeySha256": "a75b2d2a1a6da2938e72e9e9177db9b388f37b447c916908d698d8bf057d1de8",
+    "keyId": "9DC4Q2PRT6",
+    "issuerId": "31d90bd0-7e5b-4e85-9944-3962d6234b0c",
+    "performed": false
+  }
+}

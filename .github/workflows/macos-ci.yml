@@ -1,0 +1,67 @@
+name: TodoBar macOS CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Test and unsigned app build
+    runs-on: macos-14
+    timeout-minutes: 45
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v5
+
+      - name: Set up Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Enable pnpm
+        run: corepack enable
+
+      - name: Install web dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run Swift tests
+        run: swift test
+
+      - name: Run web tests and checks
+        run: pnpm run test:web && pnpm run check
+
+      - name: Build unsigned app
+        run: ./scripts/build-app.sh
+
+  signed:
+    name: Build signed app
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: macos-14
+    environment: production-signing
+    timeout-minutes: 45
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v5
+
+      - name: Install 1Password CLI
+        run: command -v op >/dev/null || brew install 1password-cli
+
+      - name: Build and verify signed app
+        env:
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+        run: ./scripts/build-signed-release.sh
+
+      - name: Package signed app artifact
+        run: ditto -c -k --keepParent dist/TodoBar.app "$RUNNER_TEMP/TodoBar-signed.zip"
+
+      - name: Upload signed app artifact
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: todobar-signed-macos
+          path: ${{ runner.temp }}/TodoBar-signed.zip
+          if-no-files-found: error
