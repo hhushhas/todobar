@@ -29,14 +29,13 @@ jobs:
       - name: Install web dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Generate Convex types
-        run: pnpm run convex:codegen
-
       - name: Run Swift tests
         run: swift test
 
       - name: Run web tests and checks
-        run: pnpm run test:web && pnpm run check
+        run: >-
+          pnpm run test:web && pnpm exec prettier --check . && pnpm exec eslint .
+          && pnpm exec tsc --noEmit -p tsconfig.web.json
 
       - name: Build unsigned app
         run: ./scripts/build-app.sh
