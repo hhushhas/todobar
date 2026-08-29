@@ -1,6 +1,7 @@
 #!/bin/zsh
 
 set -euo pipefail
+umask 077
 
 project_root="${0:A:h:h}"
 manifest="$project_root/release-manifest.json"
@@ -24,17 +25,25 @@ cleanup() {
 trap cleanup EXIT
 
 "$project_root/scripts/restore-release-signing.sh" "$restore_directory"
-p12_password="$(op item get "$(jq -r '.signing.p12PasswordItem' "$manifest")" \
+password_file="$restore_directory/p12-password"
+pem_path="$restore_directory/developer-id.pem"
+op item get "$(jq -r '.signing.p12PasswordItem' "$manifest")" \
   --vault "Mobile App Releases" \
   --fields label=password \
-  --reveal)"
+  --reveal > "$password_file"
+chmod 600 "$password_file"
+openssl pkcs12 -legacy \
+  -in "$restore_directory/developer-id.p12" \
+  -passin "file:$password_file" \
+  -nodes \
+  -out "$pem_path"
+chmod 600 "$pem_path"
 
 security create-keychain -p "$keychain_password" "$keychain_path" >/dev/null
 security set-keychain-settings -lut 900 "$keychain_path"
 security unlock-keychain -p "$keychain_password" "$keychain_path"
-security import "$restore_directory/developer-id.p12" \
+security import "$pem_path" \
   -k "$keychain_path" \
-  -P "$p12_password" \
   -T /usr/bin/codesign \
   -T /usr/bin/security >/dev/null
 security set-key-partition-list -S apple-tool:,apple:,codesign: -s \
