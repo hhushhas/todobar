@@ -8,11 +8,5 @@
     "eslint.config.js",
     "prettier.config.js"
   ],
-  "exclude": [
-    ".build",
-    "dist",
-    "node_modules",
-    "releases",
-    "convex"
-  ]
+  "exclude": [".build", "dist", "node_modules", "releases", "convex"]
 }
