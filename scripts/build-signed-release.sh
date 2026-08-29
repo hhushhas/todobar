@@ -42,7 +42,7 @@ security set-key-partition-list -S apple-tool:,apple:,codesign: -s \
 security list-keychains -d user -s "$keychain_path" "${original_keychains[@]}"
 
 identity="$(jq -r '.signing.identity' "$manifest")"
-if ! security find-identity -v -p codesigning "$keychain_path" | rg -F "$identity" >/dev/null; then
+if ! security find-identity -v -p codesigning "$keychain_path" | grep -F "$identity" >/dev/null; then
   print -u2 "Restored keychain does not contain the expected Developer ID identity"
   exit 1
 fi
