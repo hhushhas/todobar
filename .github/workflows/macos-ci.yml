@@ -11,7 +11,7 @@ permissions:
 jobs:
   verify:
     name: Test and unsigned app build
-    runs-on: macos-14
+    runs-on: macos-26
     timeout-minutes: 45
     steps:
       - name: Check out source
@@ -21,9 +21,10 @@ jobs:
         uses: actions/setup-node@v5
         with:
           node-version: 22
+          package-manager-cache: false
 
       - name: Enable pnpm
-        run: corepack enable
+        run: corepack enable && corepack install --global pnpm@11.15.1
 
       - name: Install web dependencies
         run: pnpm install --frozen-lockfile
@@ -40,7 +41,7 @@ jobs:
   signed:
     name: Build signed app
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    runs-on: macos-14
+    runs-on: macos-26
     environment: production-signing
     timeout-minutes: 45
     steps:
