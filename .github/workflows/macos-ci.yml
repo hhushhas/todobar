@@ -24,7 +24,7 @@ jobs:
           package-manager-cache: false
 
       - name: Enable pnpm
-        run: corepack enable && corepack install --global pnpm@11.15.1
+        run: corepack enable && corepack install --global pnpm@12.8.1
 
       - name: Install web dependencies
         run: pnpm install --frozen-lockfile
